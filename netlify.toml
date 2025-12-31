@@ -1,5 +1,5 @@
 [build]
-command = "make build"
+command = "make prod"
 publish = "public"
 
 [build.environment]
