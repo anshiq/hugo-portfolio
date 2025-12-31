@@ -1,0 +1,94 @@
+baseURL = "https://iamanshik.online/"
+languageCode = "en-us"
+title = "Anshik Singh"
+theme = "typo"
+
+# googleAnalytics = "G-xxxxxxxxx"
+
+[taxonomies]
+tag = "tags"
+
+[params]
+description = "Anshik Singh – Software Engineer, Notes & Blog"
+
+# Appearance
+theme = "light"
+colorPalette = "default"
+hideHeader = false
+
+# Home intro
+homeIntroContent = """
+I am [Anshik Singh](/cv), a Software Engineer Intern at
+[SilverPush](https://www.silverpush.co/), currently based in India.  
+
+My interests span across **web development**, **blockchain**, and **system design**.  
+
+Go enthusiast, JavaScript pays the bills....
+
+📩 Reach me at:
+*[anshikthind at gmail dot com](mailto:anshikthind@gmail.com)*
+"""
+
+footerContent = """
+`make build all` //[source](https://github.com/anshiq/hugo-portfolio)
+
+---
+
+Powered by [Hugo](https://gohugo.io/) · Theme:
+[tomfran/typo](https://github.com/tomfran/typo)
+"""
+
+# ---- HOME PAGE CONTENT ----
+# Show latest notes/blogs on home
+homeCollection = "notes"
+homeCollectionLimit = 4
+homeCollectionTitle = "Recent Notes"
+
+summaryLength = 150
+listSummaries = true
+
+# ---- LIST / PAGINATION ----
+paginationSize = 100
+listDateFormat = "2 Jan 2006"
+
+# ---- BREADCRUMBS ----
+[params.breadcrumbs]
+enabled = true
+showCurrentPage = true
+home = "Home"
+
+# ---- MAIN MENU ----
+[[params.menu]]
+name = "Home"
+url = "/"
+weight = 1
+
+[[params.menu]]
+name = "Notes"
+url = "/notes/"
+weight = 2
+
+[[params.menu]]
+name = "CV"
+url = "/cv/"
+weight = 3
+
+[[params.menu]]
+name = "Contact"
+url = "/contact/"
+weight = 4
+
+# ---- SYNTAX HIGHLIGHT ----
+[markup]
+[markup.highlight]
+style = "algol"
+
+# ---- GISCUS (optional) ----
+[params.giscus]
+enable = false
+repo = "user/repo"
+repoid = "repoId"
+category = "General"
+categoryid = "categoryId"
+mapping = "pathname"
+theme = "preferred_color_scheme"
