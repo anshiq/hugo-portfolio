@@ -1,0 +1,6 @@
+---
+title: "Data Structure and Algorithums"
+date: 2025-12-30T12:00:00+00:00
+author: "Anshik"
+---
+Data Structure and Algorithums
