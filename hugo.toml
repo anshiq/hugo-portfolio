@@ -90,7 +90,7 @@ weight = 3
 
 [[params.menu]]
 name = "DSA"
-url = "/dsa/"
+url = "/data-structures/"
 weight = 4
 
 [[params.menu]]

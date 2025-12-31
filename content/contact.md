@@ -1,7 +1,6 @@
 ---
 title: "Contact"
 date: 2025-12-31T10:00:00+05:30
-draft: false
 ---
 
 <img

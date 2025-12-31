@@ -1,7 +1,6 @@
 ---
 title: "Curriculum Vitae"
 date: 2025-12-31T09:17:10+05:30
-draft: false
 ---
 [Open in Google Docs](https://docs.google.com/document/d/1nPgfUoXYeplaKopTyahQxlwmztQGZG4uPR1UoHHYheU/edit)
 
