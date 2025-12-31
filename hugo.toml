@@ -9,19 +9,23 @@ theme = "typo"
 tag = "tags"
 
 [params]
-description = "Anshik Singh – Software Engineer, Notes & Blog"
+description = "Anshik Singh – Software Engineer, Blogs, Notes & DSA"
 
+# -----------------------------
 # Appearance
+# -----------------------------
 theme = "light"
 colorPalette = "default"
 hideHeader = false
 
-# Home intro
+# -----------------------------
+# Home page intro
+# -----------------------------
 homeIntroContent = """
 I am [Anshik Singh](/cv), a Software Engineer Intern at
 [SilverPush](https://www.silverpush.co/), currently based in India.  
 
-My interests span across **web development**, **blockchain**, and **system design**.  
+My interests span across **web development** and **system design**.  
 
 Go enthusiast, JavaScript pays the bills....
 
@@ -29,6 +33,9 @@ Go enthusiast, JavaScript pays the bills....
 *[anshikthind at gmail dot com](mailto:anshikthind@gmail.com)*
 """
 
+# -----------------------------
+# Footer
+# -----------------------------
 footerContent = """
 `make build all` //[source](https://github.com/anshiq/hugo-portfolio)
 
@@ -38,52 +45,78 @@ Powered by [Hugo](https://gohugo.io/) · Theme:
 [tomfran/typo](https://github.com/tomfran/typo)
 """
 
-# ---- HOME PAGE CONTENT ----
-# Show latest notes/blogs on home
-homeCollection = "notes"
+# -----------------------------
+# Home page collection
+# -----------------------------
+# Homepage should highlight BLOGS
+homeCollection = "blogs"
+homeCollectionTitle = "Recent Blogs"
 homeCollectionLimit = 4
-homeCollectionTitle = "Recent Notes"
 
 summaryLength = 150
 listSummaries = true
 
-# ---- LIST / PAGINATION ----
+# -----------------------------
+# Lists / pagination
+# -----------------------------
 paginationSize = 100
 listDateFormat = "2 Jan 2006"
 
-# ---- BREADCRUMBS ----
+# -----------------------------
+# Breadcrumbs
+# -----------------------------
 [params.breadcrumbs]
 enabled = true
 showCurrentPage = true
 home = "Home"
 
-# ---- MAIN MENU ----
+# -----------------------------
+# Main navigation menu
+# -----------------------------
 [[params.menu]]
 name = "Home"
 url = "/"
 weight = 1
 
 [[params.menu]]
+name = "Blogs"
+url = "/blogs/"
+weight = 2
+
+[[params.menu]]
 name = "Notes"
 url = "/notes/"
-weight = 2
+weight = 3
+
+[[params.menu]]
+name = "DSA"
+url = "/dsa/"
+weight = 4
 
 [[params.menu]]
 name = "CV"
 url = "/cv/"
-weight = 3
+weight = 5
 
 [[params.menu]]
 name = "Contact"
 url = "/contact/"
-weight = 4
+weight = 6
 
-# ---- SYNTAX HIGHLIGHT ----
+# -----------------------------
+# Markdown / Syntax Highlighting
+# -----------------------------
 [markup]
 [markup.highlight]
 style = "algol"
 
-# ---- GISCUS (optional) ----
+[markup.goldmark]
+[markup.goldmark.renderer]
+unsafe = true # REQUIRED for iframe (CV page)
+
+# -----------------------------
+# Giscus (disabled)
+# -----------------------------
 [params.giscus]
 enable = false
 repo = "user/repo"
