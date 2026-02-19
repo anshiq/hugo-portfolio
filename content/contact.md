@@ -13,7 +13,7 @@ date: 2025-12-31T10:00:00+05:30
 ## Anshik Singh
 
 📞 **Phone:** +91&nbsp;8278187062  
-🌐 **Website:** [iamanshik.online](https://iamanshik.online)  
+🌐 **Website:** [anshik.in](https://anshik.in)  
 ✉️ **Email:** [anshikthind@gmail.com](mailto:anshikthind@gmail.com)
 
 ---
