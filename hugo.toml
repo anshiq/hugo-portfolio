@@ -87,10 +87,6 @@ name = "Blogs"
 url = "/blogs/"
 weight = 2
 
-[[params.menu]]
-name = "Notes"
-url = "/notes/"
-weight = 3
 
 [[params.menu]]
 name = "DSA"
