@@ -36,9 +36,15 @@ Go enthusiast, JavaScript pays the bills....
 # -----------------------------
 # Footer
 # -----------------------------
-footerContent = """
-`make build all` //[source](https://github.com/anshiq/hugo-portfolio)
+# footerContent = """
+# `make build all` //[source](https://github.com/anshiq/hugo-portfolio)
 
+# ---
+
+# Powered by [Hugo](https://gohugo.io/) · Theme:
+# [tomfran/typo](https://github.com/tomfran/typo)
+# """
+footerContent = """
 ---
 
 Powered by [Hugo](https://gohugo.io/) · Theme:

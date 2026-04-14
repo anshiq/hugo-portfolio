@@ -6,9 +6,9 @@ let cloud = document.querySelector("#cloud");
 let score = document.querySelector("#score");
 let gameOver = document.querySelector("#gameOver");
 
-//declaring variable for score
 let interval = null;
 let playerScore = 0;
+let gameStarted = false;
 
 
 //function for score
@@ -21,14 +21,16 @@ let scoreCounter = () => {
 //start Game
 window.addEventListener("keydown", (start) => {
     //    console.log(start);
-    if (start.code == "Space") {
+    if (start.code == "Space" && !gameStarted) {
+        gameStarted = true;
         gameOver.style.display = "none";
         block.classList.add("blockActive");
         road.firstElementChild.style.animation = "roadAnimate 1.5s linear infinite";
         cloud.firstElementChild.style.animation = "cloudAnimate 50s linear infinite";
 
         //score
-        let playerScore = 0;
+        playerScore = 0;
+        score.innerHTML = `Score <b>${playerScore}</b>`;
         interval = setInterval(scoreCounter, 200);
     }
 });
@@ -66,5 +68,7 @@ let result = setInterval(() => {
         cloud.firstElementChild.style.animation = "none";
         clearInterval(interval);
         playerScore = 0;
+        score.innerHTML = `Score <b>${playerScore}</b>`;
+        gameStarted = false;
     }
 }, 10);
