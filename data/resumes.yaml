@@ -1,0 +1,7 @@
+resumes:
+  1:
+    filename: "01_fullStack_no_java.pdf"
+    title: "Full Stack"
+  2:
+    filename: "02_fullStack_with_java.pdf"
+    title: "Java Full Stack"

@@ -1,0 +1,48 @@
+{{ $resumes := index .Site.Data "resumes" }}
+{{ $resumesMap := $resumes.resumes }}
+
+<div id="resume-container">
+  <p>Loading resume...</p>
+</div>
+
+<script>
+(function() {
+  var SESSION_KEY = 'resumeNum';
+
+  // Resume mapping injected at Hugo compile time.
+  // Keys are strings to match URLSearchParams.get() output.
+  var resumes = {};
+
+  {{ range $num, $resume := $resumesMap }}
+  resumes["{{ $num }}"] = {
+    filename: "{{ $resume.filename }}",
+    title: "{{ $resume.title }}"
+  };
+  {{ end }}
+
+  var container = document.getElementById('resume-container');
+  if (!container) return;
+
+  // Prefer the URL query param; fall back to sessionStorage; then default to "1".
+  var urlParams = new URLSearchParams(window.location.search);
+  var resumeNum = urlParams.get('r');
+
+  if (resumeNum) {
+    // Fresh param — save it for later navigation
+    sessionStorage.setItem(SESSION_KEY, resumeNum);
+  } else {
+    // No param — restore from session if available
+    resumeNum = sessionStorage.getItem(SESSION_KEY) || '1';
+  }
+
+  var resume = resumes[resumeNum] || resumes['1'];
+
+  if (resume) {
+    container.innerHTML =
+      '<p><strong>' + resume.title + '</strong></p>' +
+      '<iframe src="/' + resume.filename + '" width="100%" height="1100" style="border: none;"></iframe>';
+  } else {
+    container.innerHTML = '<p>Resume not found.</p>';
+  }
+})();
+</script>
