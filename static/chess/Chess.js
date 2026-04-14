@@ -18,6 +18,28 @@ function insertImage() {
         }
     })
 }
+
+// Track pawn first move (store as object with row info)
+let pawnFirstMove = {}
+
+function checkPawnFirstMove(piece, row) {
+    if (piece === 'Wpawn' && row === 2) return true
+    if (piece === 'Bpawn' && row === 7) return true
+    return false
+}
+
+function getPieceColor(piece) {
+    if (!piece) return null
+    return piece.charAt(0)
+}
+
+function isEnemyPiece(targetPiece, currentPiece) {
+    if (!targetPiece || !currentPiece) return false
+    const targetColor = getPieceColor(targetPiece)
+    const currentColor = getPieceColor(currentPiece)
+    return targetColor !== currentColor && targetColor !== null
+}
+
 insertImage()
 
 
@@ -108,30 +130,36 @@ document.querySelectorAll('.box').forEach(item => {
 
     item.addEventListener('click', function () {
 
-        // To delete the opposite element
-
-        if (item.style.backgroundColor == 'green' && item.innerText.length == 0) {
-            tog = tog + 1
+        // Don't allow clicking on empty squares (unless they're green - valid move targets)
+        if (item.innerText.length === 0 && item.style.backgroundColor !== 'green') {
+            return
         }
 
-        else if (item.style.backgroundColor == 'green' && item.innerText.length !== 0) {
+        // Get the piece color to check if it's this player's turn
+        let pieceColor = getPieceColor(item.innerText)
+        let isWhiteTurn = tog % 2 !== 0
 
-            document.querySelectorAll('.box').forEach(i => {
-                if (i.style.backgroundColor == 'pink') {
-                    pinkId = i.id
-                    pinkText = i.innerText
+        // Check if it's the correct player's turn
+        if (pieceColor) {
+            let pieceIsWhite = pieceColor === 'W'
+            if ((isWhiteTurn && !pieceIsWhite) || (!isWhiteTurn && pieceIsWhite)) {
+                // Not this player's turn, clear any selection and return
+                document.querySelectorAll('.box').forEach(sq => {
+                    sq.style.backgroundColor = ''
+                })
+                coloring()
+                return
+            }
+        }
 
-                    document.getElementById(pinkId).innerText = ''
-                    item.innerText = pinkText
-                    coloring()
-                    insertImage()
-                    tog = tog + 1
-                    
-                }
+        // Clear previous green highlights when selecting a new piece
+        // Only if this square doesn't already have green or pink background
+        if (item.style.backgroundColor !== 'green' && item.style.backgroundColor !== 'pink') {
+            document.querySelectorAll('.box').forEach(sq => {
+                sq.style.backgroundColor = ''
             })
+            coloring()
         }
-
-
 
         getId = item.id
         arr = Array.from(getId)
@@ -151,34 +179,62 @@ document.querySelectorAll('.box').forEach(item => {
 
             if (item.innerText == `${toggle}pawn`) {
                 item.style.backgroundColor = 'pink'
+                let piece = item.innerText
+                let currentRow = Math.floor(a / 100)
+                let isFirstMove = checkPawnFirstMove(piece, currentRow)
 
                 if (tog % 2 !== 0 && aup < 800) {
+                    // White pawn moves up (decreasing row number)
 
+                    // Forward move - only if empty
                     if (document.getElementById(`b${a + 100}`).innerText.length == 0) {
                         document.getElementById(`b${a + 100}`).style.backgroundColor = 'green'
+                        // First move - can move 2 squares if path is clear
+                        if (isFirstMove && document.getElementById(`b${a + 200}`).innerText.length == 0) {
+                            document.getElementById(`b${a + 200}`).style.backgroundColor = 'green'
+                        }
                     }
 
-                    if (aside < 8 && document.getElementById(`b${a + 100 + 1}`).innerText.length !== 0) {
-                        document.getElementById(`b${a + 100 + 1}`).style.backgroundColor = 'green'
+                    // Diagonal capture - only capture enemy pieces
+                    if (aside < 8) {
+                        let diagonalPiece = document.getElementById(`b${a + 100 + 1}`).innerText
+                        if (isEnemyPiece(diagonalPiece, item.innerText)) {
+                            document.getElementById(`b${a + 100 + 1}`).style.backgroundColor = 'green'
+                        }
                     }
 
-                    if (aside > 1 && document.getElementById(`b${a + 100 - 1}`).innerText.length !== 0) {
-                        document.getElementById(`b${a + 100 - 1}`).style.backgroundColor = 'green'
-
+                    if (aside > 1) {
+                        let diagonalPiece = document.getElementById(`b${a + 100 - 1}`).innerText
+                        if (isEnemyPiece(diagonalPiece, item.innerText)) {
+                            document.getElementById(`b${a + 100 - 1}`).style.backgroundColor = 'green'
+                        }
                     }
                 }
 
                 if (tog % 2 == 0 && aup > 100) {
+                    // Black pawn moves down (increasing row number)
 
+                    // Forward move - only if empty
                     if (document.getElementById(`b${a - 100}`).innerText.length == 0) {
                         document.getElementById(`b${a - 100}`).style.backgroundColor = 'green'
+                        // First move - can move 2 squares if path is clear
+                        if (isFirstMove && document.getElementById(`b${a - 200}`).innerText.length == 0) {
+                            document.getElementById(`b${a - 200}`).style.backgroundColor = 'green'
+                        }
                     }
-                    if (aside < 8 && document.getElementById(`b${a - 100 + 1}`).innerText.length !== 0) {
-                        document.getElementById(`b${a - 100 + 1}`).style.backgroundColor = 'green'
-                    }
-                    if (aside > 1 && document.getElementById(`b${a - 100 - 1}`).innerText.length !== 0) {
-                        document.getElementById(`b${a - 100 - 1}`).style.backgroundColor = 'green'
 
+                    // Diagonal capture - only capture enemy pieces
+                    if (aside < 8) {
+                        let diagonalPiece = document.getElementById(`b${a - 100 + 1}`).innerText
+                        if (isEnemyPiece(diagonalPiece, item.innerText)) {
+                            document.getElementById(`b${a - 100 + 1}`).style.backgroundColor = 'green'
+                        }
+                    }
+                    if (aside > 1) {
+                        let diagonalPiece = document.getElementById(`b${a - 100 - 1}`).innerText
+                        if (isEnemyPiece(diagonalPiece, item.innerText)) {
+                            document.getElementById(`b${a - 100 - 1}`).style.backgroundColor = 'green'
+                        }
                     }
                 }
 
@@ -189,40 +245,31 @@ document.querySelectorAll('.box').forEach(item => {
 
             if (item.innerText == `${toggle}king`) {
 
+                let kingMoves = [
+                    { dx: 0, dy: 1 },
+                    { dx: 0, dy: -1 },
+                    { dx: 1, dy: 0 },
+                    { dx: -1, dy: 0 },
+                    { dx: 1, dy: 1 },
+                    { dx: 1, dy: -1 },
+                    { dx: -1, dy: 1 },
+                    { dx: -1, dy: -1 }
+                ]
 
-                if (aside < 8) {
-                    document.getElementById(`b${a + 1}`).style.backgroundColor = 'green'
+                kingMoves.forEach(move => {
+                    let newCol = aside + move.dx
+                    let newRow = aup + move.dy * 100
 
-                }
-                if (aside > 1) {
+                    if (newCol >= 1 && newCol <= 8 && newRow >= 100 && newRow < 900) {
+                        let targetId = `b${newRow + newCol}`
+                        let targetSquare = document.getElementById(targetId)
+                        let targetPiece = targetSquare.innerText
 
-                    document.getElementById(`b${a - 1}`).style.backgroundColor = 'green'
-                }
-                if (aup < 800) {
-
-                    document.getElementById(`b${a + 100}`).style.backgroundColor = 'green'
-                }
-                if (aup > 100) {
-
-                    document.getElementById(`b${a - 100}`).style.backgroundColor = 'green'
-                }
-
-                if (aup > 100 && aside < 8) {
-
-                    document.getElementById(`b${a - 100 + 1}`).style.backgroundColor = 'green'
-                }
-                if (aup > 100 && aside > 1) {
-
-                    document.getElementById(`b${a - 100 - 1}`).style.backgroundColor = 'green'
-                }
-                if (aup < 800 && aside < 8) {
-
-                    document.getElementById(`b${a + 100 + 1}`).style.backgroundColor = 'green'
-                }
-                if (aup < 800 && aside > 1) {
-
-                    document.getElementById(`b${a + 100 - 1}`).style.backgroundColor = 'green'
-                }
+                        if (targetPiece.length === 0 || isEnemyPiece(targetPiece, item.innerText)) {
+                            targetSquare.style.backgroundColor = 'green'
+                        }
+                    }
+                })
 
                 item.style.backgroundColor = 'pink'
 
@@ -235,45 +282,65 @@ document.querySelectorAll('.box').forEach(item => {
 
                 for (let i = 1; i < 9; i++) {
 
-                    if ((a + i * 100) < 900 && document.getElementById(`b${a + i * 100}`).innerText == 0) {
-                        document.getElementById(`b${a + i * 100}`).style.backgroundColor = 'green'
-                    }
-                    else if ((a + i * 100) < 900 && document.getElementById(`b${a + i * 100}`).innerText !== 0) {
-                        document.getElementById(`b${a + i * 100}`).style.backgroundColor = 'green'
-                        break
-                    }
-                }
-
-                for (let i = 1; i < 9; i++) {
-
-                    if ((a - i * 100) > 100 && document.getElementById(`b${a - i * 100}`).innerText == 0) {
-                        document.getElementById(`b${a - i * 100}`).style.backgroundColor = 'green'
-                    }
-                    else if ((a - i * 100) > 100 && document.getElementById(`b${a - i * 100}`).innerText !== 0) {
-                        document.getElementById(`b${a - i * 100}`).style.backgroundColor = 'green'
-                        break
+                    if ((a + i * 100) < 900) {
+                        let targetSquare = document.getElementById(`b${a + i * 100}`)
+                        let targetPiece = targetSquare.innerText
+                        if (targetPiece.length === 0) {
+                            targetSquare.style.backgroundColor = 'green'
+                        } else if (isEnemyPiece(targetPiece, item.innerText)) {
+                            targetSquare.style.backgroundColor = 'green'
+                            break
+                        } else {
+                            break
+                        }
                     }
                 }
 
                 for (let i = 1; i < 9; i++) {
 
-                    if ((a + i) < (aup + 9) && document.getElementById(`b${a + i}`).innerText == 0) {
-                        document.getElementById(`b${a + i}`).style.backgroundColor = 'green'
-                    }
-                    else if ((a + i) < (aup + 9) && document.getElementById(`b${a + i}`).innerText !== 0) {
-                        document.getElementById(`b${a + i}`).style.backgroundColor = 'green'
-                        break
+                    if ((a - i * 100) > 100) {
+                        let targetSquare = document.getElementById(`b${a - i * 100}`)
+                        let targetPiece = targetSquare.innerText
+                        if (targetPiece.length === 0) {
+                            targetSquare.style.backgroundColor = 'green'
+                        } else if (isEnemyPiece(targetPiece, item.innerText)) {
+                            targetSquare.style.backgroundColor = 'green'
+                            break
+                        } else {
+                            break
+                        }
                     }
                 }
 
                 for (let i = 1; i < 9; i++) {
 
-                    if ((a - i) > (aup) && document.getElementById(`b${a - i}`).innerText == 0) {
-                        document.getElementById(`b${a - i}`).style.backgroundColor = 'green'
+                    if ((a + i) < (aup + 9)) {
+                        let targetSquare = document.getElementById(`b${a + i}`)
+                        let targetPiece = targetSquare.innerText
+                        if (targetPiece.length === 0) {
+                            targetSquare.style.backgroundColor = 'green'
+                        } else if (isEnemyPiece(targetPiece, item.innerText)) {
+                            targetSquare.style.backgroundColor = 'green'
+                            break
+                        } else {
+                            break
+                        }
                     }
-                    else if ((a - i) > (aup) && document.getElementById(`b${a - i}`).innerText !== 0) {
-                        document.getElementById(`b${a - i}`).style.backgroundColor = 'green'
-                        break
+                }
+
+                for (let i = 1; i < 9; i++) {
+
+                    if ((a - i) > (aup)) {
+                        let targetSquare = document.getElementById(`b${a - i}`)
+                        let targetPiece = targetSquare.innerText
+                        if (targetPiece.length === 0) {
+                            targetSquare.style.backgroundColor = 'green'
+                        } else if (isEnemyPiece(targetPiece, item.innerText)) {
+                            targetSquare.style.backgroundColor = 'green'
+                            break
+                        } else {
+                            break
+                        }
                     }
                 }
 
@@ -288,46 +355,66 @@ document.querySelectorAll('.box').forEach(item => {
 
 
                 for (let i = 1; i < 9; i++) {
-                    if (i < (900 - aup) / 100 && i < 9 - aside && document.getElementById(`b${a + i * 100 + i}`).innerText.length == 0) {
-                        document.getElementById(`b${a + i * 100 + i}`).style.backgroundColor = 'green'
-                    }
-                    else if (i < (900 - aup) / 100 && i < 9 - aside && document.getElementById(`b${a + i * 100 + i}`).innerText.length !== 0) {
-                        document.getElementById(`b${a + i * 100 + i}`).style.backgroundColor = 'green'
-                        break
-                    }
-                }
-
-
-                for (let i = 1; i < 9; i++) {
-                    if (i < aup / 100 && i < 9 - aside && document.getElementById(`b${a - i * 100 + i}`).innerText.length == 0) {
-                        document.getElementById(`b${a - i * 100 + i}`).style.backgroundColor = 'green'
-                    }
-                    else if (i < aup / 100 && i < 9 - aside && document.getElementById(`b${a - i * 100 + i}`).innerText.length !== 0) {
-                        document.getElementById(`b${a - i * 100 + i}`).style.backgroundColor = 'green'
-                        break
+                    if (i < (900 - aup) / 100 && i < 9 - aside) {
+                        let targetSquare = document.getElementById(`b${a + i * 100 + i}`)
+                        let targetPiece = targetSquare.innerText
+                        if (targetPiece.length === 0) {
+                            targetSquare.style.backgroundColor = 'green'
+                        } else if (isEnemyPiece(targetPiece, item.innerText)) {
+                            targetSquare.style.backgroundColor = 'green'
+                            break
+                        } else {
+                            break
+                        }
                     }
                 }
 
 
                 for (let i = 1; i < 9; i++) {
-                    if (i < (900 - aup) / 100 && i < aside && document.getElementById(`b${a + i * 100 - i}`).innerText.length == 0) {
-                        document.getElementById(`b${a + i * 100 - i}`).style.backgroundColor = 'green'
+                    if (i < aup / 100 && i < 9 - aside) {
+                        let targetSquare = document.getElementById(`b${a - i * 100 + i}`)
+                        let targetPiece = targetSquare.innerText
+                        if (targetPiece.length === 0) {
+                            targetSquare.style.backgroundColor = 'green'
+                        } else if (isEnemyPiece(targetPiece, item.innerText)) {
+                            targetSquare.style.backgroundColor = 'green'
+                            break
+                        } else {
+                            break
+                        }
                     }
-                    else if (i < (900 - aup) / 100 && i < aside && document.getElementById(`b${a + i * 100 - i}`).innerText.length !== 0) {
-                        document.getElementById(`b${a + i * 100 - i}`).style.backgroundColor = 'green'
-                        break
+                }
+
+
+                for (let i = 1; i < 9; i++) {
+                    if (i < (900 - aup) / 100 && i < aside) {
+                        let targetSquare = document.getElementById(`b${a + i * 100 - i}`)
+                        let targetPiece = targetSquare.innerText
+                        if (targetPiece.length === 0) {
+                            targetSquare.style.backgroundColor = 'green'
+                        } else if (isEnemyPiece(targetPiece, item.innerText)) {
+                            targetSquare.style.backgroundColor = 'green'
+                            break
+                        } else {
+                            break
+                        }
                     }
 
                 }
 
 
                 for (let i = 1; i < 9; i++) {
-                    if (i < aup / 100 && i < aside && document.getElementById(`b${a - i * 100 - i}`).innerText.length == 0) {
-                        document.getElementById(`b${a - i * 100 - i}`).style.backgroundColor = 'green'
-                    }
-                    else if (i < aup / 100 && i < aside && document.getElementById(`b${a - i * 100 - i}`).innerText.length !== 0) {
-                        document.getElementById(`b${a - i * 100 - i}`).style.backgroundColor = 'green'
-                        break
+                    if (i < aup / 100 && i < aside) {
+                        let targetSquare = document.getElementById(`b${a - i * 100 - i}`)
+                        let targetPiece = targetSquare.innerText
+                        if (targetPiece.length === 0) {
+                            targetSquare.style.backgroundColor = 'green'
+                        } else if (isEnemyPiece(targetPiece, item.innerText)) {
+                            targetSquare.style.backgroundColor = 'green'
+                            break
+                        } else {
+                            break
+                        }
                     }
                 }
 
@@ -346,91 +433,131 @@ document.querySelectorAll('.box').forEach(item => {
 
                 for (let i = 1; i < 9; i++) {
 
-                    if ((a + i * 100) < 900 && document.getElementById(`b${a + i * 100}`).innerText == 0) {
-                        document.getElementById(`b${a + i * 100}`).style.backgroundColor = 'green'
-                    }
-                    else if ((a + i * 100) < 900 && document.getElementById(`b${a + i * 100}`).innerText !== 0) {
-                        document.getElementById(`b${a + i * 100}`).style.backgroundColor = 'green'
-                        break
-                    }
-                }
-
-                for (let i = 1; i < 9; i++) {
-
-                    if ((a - i * 100) > 100 && document.getElementById(`b${a - i * 100}`).innerText == 0) {
-                        document.getElementById(`b${a - i * 100}`).style.backgroundColor = 'green'
-                    }
-                    else if ((a - i * 100) > 100 && document.getElementById(`b${a - i * 100}`).innerText !== 0) {
-                        document.getElementById(`b${a - i * 100}`).style.backgroundColor = 'green'
-                        break
+                    if ((a + i * 100) < 900) {
+                        let targetSquare = document.getElementById(`b${a + i * 100}`)
+                        let targetPiece = targetSquare.innerText
+                        if (targetPiece.length === 0) {
+                            targetSquare.style.backgroundColor = 'green'
+                        } else if (isEnemyPiece(targetPiece, item.innerText)) {
+                            targetSquare.style.backgroundColor = 'green'
+                            break
+                        } else {
+                            break
+                        }
                     }
                 }
 
                 for (let i = 1; i < 9; i++) {
 
-                    if ((a + i) < (aup + 9) && document.getElementById(`b${a + i}`).innerText == 0) {
-                        document.getElementById(`b${a + i}`).style.backgroundColor = 'green'
-                    }
-                    else if ((a + i) < (aup + 9) && document.getElementById(`b${a + i}`).innerText !== 0) {
-                        document.getElementById(`b${a + i}`).style.backgroundColor = 'green'
-                        break
+                    if ((a - i * 100) > 100) {
+                        let targetSquare = document.getElementById(`b${a - i * 100}`)
+                        let targetPiece = targetSquare.innerText
+                        if (targetPiece.length === 0) {
+                            targetSquare.style.backgroundColor = 'green'
+                        } else if (isEnemyPiece(targetPiece, item.innerText)) {
+                            targetSquare.style.backgroundColor = 'green'
+                            break
+                        } else {
+                            break
+                        }
                     }
                 }
 
                 for (let i = 1; i < 9; i++) {
 
-                    if ((a - i) > (aup) && document.getElementById(`b${a - i}`).innerText == 0) {
-                        document.getElementById(`b${a - i}`).style.backgroundColor = 'green'
+                    if ((a + i) < (aup + 9)) {
+                        let targetSquare = document.getElementById(`b${a + i}`)
+                        let targetPiece = targetSquare.innerText
+                        if (targetPiece.length === 0) {
+                            targetSquare.style.backgroundColor = 'green'
+                        } else if (isEnemyPiece(targetPiece, item.innerText)) {
+                            targetSquare.style.backgroundColor = 'green'
+                            break
+                        } else {
+                            break
+                        }
                     }
-                    else if ((a - i) > (aup) && document.getElementById(`b${a - i}`).innerText !== 0) {
-                        document.getElementById(`b${a - i}`).style.backgroundColor = 'green'
-                        break
+                }
+
+                for (let i = 1; i < 9; i++) {
+
+                    if ((a - i) > (aup)) {
+                        let targetSquare = document.getElementById(`b${a - i}`)
+                        let targetPiece = targetSquare.innerText
+                        if (targetPiece.length === 0) {
+                            targetSquare.style.backgroundColor = 'green'
+                        } else if (isEnemyPiece(targetPiece, item.innerText)) {
+                            targetSquare.style.backgroundColor = 'green'
+                            break
+                        } else {
+                            break
+                        }
                     }
                 }
 
 
 
                 for (let i = 1; i < 9; i++) {
-                    if (i < (900 - aup) / 100 && i < 9 - aside && document.getElementById(`b${a + i * 100 + i}`).innerText.length == 0) {
-                        document.getElementById(`b${a + i * 100 + i}`).style.backgroundColor = 'green'
-                    }
-                    else if (i < (900 - aup) / 100 && i < 9 - aside && document.getElementById(`b${a + i * 100 + i}`).innerText.length !== 0) {
-                        document.getElementById(`b${a + i * 100 + i}`).style.backgroundColor = 'green'
-                        break
-                    }
-                }
-
-
-                for (let i = 1; i < 9; i++) {
-                    if (i < aup / 100 && i < 9 - aside && document.getElementById(`b${a - i * 100 + i}`).innerText.length == 0) {
-                        document.getElementById(`b${a - i * 100 + i}`).style.backgroundColor = 'green'
-                    }
-                    else if (i < aup / 100 && i < 9 - aside && document.getElementById(`b${a - i * 100 + i}`).innerText.length !== 0) {
-                        document.getElementById(`b${a - i * 100 + i}`).style.backgroundColor = 'green'
-                        break
+                    if (i < (900 - aup) / 100 && i < 9 - aside) {
+                        let targetSquare = document.getElementById(`b${a + i * 100 + i}`)
+                        let targetPiece = targetSquare.innerText
+                        if (targetPiece.length === 0) {
+                            targetSquare.style.backgroundColor = 'green'
+                        } else if (isEnemyPiece(targetPiece, item.innerText)) {
+                            targetSquare.style.backgroundColor = 'green'
+                            break
+                        } else {
+                            break
+                        }
                     }
                 }
 
 
                 for (let i = 1; i < 9; i++) {
-                    if (i < (900 - aup) / 100 && i < aside && document.getElementById(`b${a + i * 100 - i}`).innerText.length == 0) {
-                        document.getElementById(`b${a + i * 100 - i}`).style.backgroundColor = 'green'
+                    if (i < aup / 100 && i < 9 - aside) {
+                        let targetSquare = document.getElementById(`b${a - i * 100 + i}`)
+                        let targetPiece = targetSquare.innerText
+                        if (targetPiece.length === 0) {
+                            targetSquare.style.backgroundColor = 'green'
+                        } else if (isEnemyPiece(targetPiece, item.innerText)) {
+                            targetSquare.style.backgroundColor = 'green'
+                            break
+                        } else {
+                            break
+                        }
                     }
-                    else if (i < (900 - aup) / 100 && i < aside && document.getElementById(`b${a + i * 100 - i}`).innerText.length !== 0) {
-                        document.getElementById(`b${a + i * 100 - i}`).style.backgroundColor = 'green'
-                        break
+                }
+
+
+                for (let i = 1; i < 9; i++) {
+                    if (i < (900 - aup) / 100 && i < aside) {
+                        let targetSquare = document.getElementById(`b${a + i * 100 - i}`)
+                        let targetPiece = targetSquare.innerText
+                        if (targetPiece.length === 0) {
+                            targetSquare.style.backgroundColor = 'green'
+                        } else if (isEnemyPiece(targetPiece, item.innerText)) {
+                            targetSquare.style.backgroundColor = 'green'
+                            break
+                        } else {
+                            break
+                        }
                     }
 
                 }
 
 
                 for (let i = 1; i < 9; i++) {
-                    if (i < aup / 100 && i < aside && document.getElementById(`b${a - i * 100 - i}`).innerText.length == 0) {
-                        document.getElementById(`b${a - i * 100 - i}`).style.backgroundColor = 'green'
-                    }
-                    else if (i < aup / 100 && i < aside && document.getElementById(`b${a - i * 100 - i}`).innerText.length !== 0) {
-                        document.getElementById(`b${a - i * 100 - i}`).style.backgroundColor = 'green'
-                        break
+                    if (i < aup / 100 && i < aside) {
+                        let targetSquare = document.getElementById(`b${a - i * 100 - i}`)
+                        let targetPiece = targetSquare.innerText
+                        if (targetPiece.length === 0) {
+                            targetSquare.style.backgroundColor = 'green'
+                        } else if (isEnemyPiece(targetPiece, item.innerText)) {
+                            targetSquare.style.backgroundColor = 'green'
+                            break
+                        } else {
+                            break
+                        }
                     }
                 }
 
@@ -444,31 +571,32 @@ document.querySelectorAll('.box').forEach(item => {
 
             if (item.innerText == `${toggle}knight`) {
 
+                // L-shape moves: +2, +1 | +2, -1 | -2, +1 | -2, -1 | +1, +2 | +1, -2 | -1, +2 | -1, -2
+                let knightMoves = [
+                    { dx: 2, dy: 1 },
+                    { dx: 2, dy: -1 },
+                    { dx: -2, dy: 1 },
+                    { dx: -2, dy: -1 },
+                    { dx: 1, dy: 2 },
+                    { dx: 1, dy: -2 },
+                    { dx: -1, dy: 2 },
+                    { dx: -1, dy: -2 }
+                ]
 
-                if (aside < 7 && aup < 800) {
-                    document.getElementById(`b${a + 100 + 2}`).style.backgroundColor = 'green'
-                }
-                if (aside < 7 && aup > 200) {
-                    document.getElementById(`b${a - 100 + 2}`).style.backgroundColor = 'green'
-                }
-                if (aside < 8 && aup < 700) {
-                    document.getElementById(`b${a + 200 + 1}`).style.backgroundColor = 'green'
-                }
-                if (aside > 1 && aup < 700) {
-                    document.getElementById(`b${a + 200 - 1}`).style.backgroundColor = 'green'
-                }
-                if (aside > 2 && aup < 800) {
-                    document.getElementById(`b${a - 2 + 100}`).style.backgroundColor = 'green'
-                }
-                if (aside > 2 && aup > 100) {
-                    document.getElementById(`b${a - 2 - 100}`).style.backgroundColor = 'green'
-                }
-                if (aside < 8 && aup > 200) {
-                    document.getElementById(`b${a - 200 + 1}`).style.backgroundColor = 'green'
-                }
-                if (aside > 1 && aup > 200) {
-                    document.getElementById(`b${a - 200 - 1}`).style.backgroundColor = 'green'
-                }
+                knightMoves.forEach(move => {
+                    let newCol = aside + move.dx
+                    let newRow = aup + move.dy * 100
+
+                    if (newCol >= 1 && newCol <= 8 && newRow >= 100 && newRow < 900) {
+                        let targetId = `b${newRow + newCol}`
+                        let targetSquare = document.getElementById(targetId)
+                        let targetPiece = targetSquare.innerText
+
+                        if (targetPiece.length === 0 || isEnemyPiece(targetPiece, item.innerText)) {
+                            targetSquare.style.backgroundColor = 'green'
+                        }
+                    }
+                })
 
                 item.style.backgroundColor = 'pink'
 
@@ -505,7 +633,7 @@ document.querySelectorAll('.box').forEach(item => {
 
         if (numOfKings == 1) {
             setTimeout(() => {
-                // console.log(`${toggle}`) 
+                // console.log(`${toggle}`)
                 if (tog % 2 == 0) {
                     alert('White Wins !!')
                     location.reload()
@@ -517,58 +645,44 @@ document.querySelectorAll('.box').forEach(item => {
             }, 100)
         }
 
-
-
-    })
-
-})
-
-
-
-
-
-// Moving the element
-document.querySelectorAll('.box').forEach(hathiTest => {
-
-    hathiTest.addEventListener('click', function () {
-
-        if (hathiTest.style.backgroundColor == 'pink') {
-
-            pinkId = hathiTest.id
-            pinkText = hathiTest.innerText
-
-            document.querySelectorAll('.box').forEach(hathiTest2 => {
-
-                hathiTest2.addEventListener('click', function () {
-                    if (hathiTest2.style.backgroundColor == 'green' && hathiTest2.innerText.length == 0) {
-                        document.getElementById(pinkId).innerText = ''
-                        hathiTest2.innerText = pinkText
-                        coloring()
-                        insertImage()
-
-                    }
-
-                })
+        // Handle clicking on green squares (making a move)
+        if (item.style.backgroundColor == 'green') {
+            // Find the selected piece (pink square)
+            let selectedPiece = null
+            let selectedId = null
+            document.querySelectorAll('.box').forEach(sq => {
+                if (sq.style.backgroundColor == 'pink') {
+                    selectedPiece = sq.innerText
+                    selectedId = sq.id
+                }
             })
 
+            if (selectedPiece && selectedId) {
+                // Move the piece
+                document.getElementById(selectedId).innerText = ''
+                item.innerText = selectedPiece
+
+                // Clear colors and redraw
+                coloring()
+                insertImage()
+
+                // Switch turn
+                tog++
+
+                // Clear the pink selection
+                document.querySelectorAll('.box').forEach(sq => {
+                    if (sq.style.backgroundColor == 'pink') {
+                        sq.style.backgroundColor = ''
+                    }
+                })
+
+                // Return early to prevent showing moves for the new position
+                return
+            }
         }
+
 
     })
 
 })
 
-
-
-
-
-
-// Prvents from selecting multiple elements
-z = 0
-document.querySelectorAll('.box').forEach(ee => {
-    ee.addEventListener('click', function () {
-        z = z + 1
-        if (z % 2 == 0 && ee.style.backgroundColor !== 'green') {
-            coloring()
-        }
-    })
-})
