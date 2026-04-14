@@ -45,8 +45,6 @@ Go enthusiast, JavaScript pays the bills....
 # [tomfran/typo](https://github.com/tomfran/typo)
 # """
 footerContent = """
----
-
 Powered by [Hugo](https://gohugo.io/) · Theme:
 [tomfran/typo](https://github.com/tomfran/typo)
 """
