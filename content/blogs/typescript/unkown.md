@@ -1,8 +1,7 @@
 ---
-title: "Unkown"
+title: "When and where to use unkown?"
 tags: ["typescript"]
 ---
-# When and where to use unkown ?
 
 ## intro
 

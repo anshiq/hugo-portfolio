@@ -2,7 +2,6 @@
 title: "Empty Object Literal"
 tags: ["typescript"]
 ---
-# Empty Object Type
 ```
 // empty object literal (object litral => syntax to write an object {...}. )
 if ({}) {

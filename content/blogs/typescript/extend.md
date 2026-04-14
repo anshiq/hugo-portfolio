@@ -1,8 +1,7 @@
 ---
-title: "Extend"
+title: "Extend of types and interfaces"
 tags: ["typescript"]
 ---
-# Extend of types and interfaces
 
 type are extended using union operators and interfaces are extended using extend keyword
 

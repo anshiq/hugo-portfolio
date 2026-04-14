@@ -3,7 +3,6 @@ title: "Null, Undefined, Void and Never"
 tags: ["typescript"]
 ---
 
-# Null, Undefined, Void and Never
 
 ## Null and Undefined
 

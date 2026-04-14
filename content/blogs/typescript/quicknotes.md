@@ -3,7 +3,6 @@ title: "Quick Notes"
 weight: 2
 tags: ["typescript"]
 ---
-# 📝 Quick Notes
 
 ## 🔢 Number
 

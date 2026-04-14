@@ -1,0 +1,20 @@
+<div class="post-line" data-section="{{ index (split (strings.TrimPrefix "/" .RelPermalink) "/") 1 }}">
+
+    {{ $dateFormat := .Site.Params.listDateFormat | default "2 Jan 2006" }}
+
+    {{ if .Parent.Param "showListDate" | default true }}
+    <p class="line-date">{{ .Date | time.Format $dateFormat }} </p>
+    {{ end }}
+
+    <div>
+        <p class="line-title">
+            <a href="{{ .RelPermalink }}">
+                {{ .Title }}
+            </a>
+        </p>
+
+        {{ if .Site.Params.listSummaries }}
+        <p class="line-summary"> {{ .Summary | plainify | truncate 70 }}… </p>
+        {{ end }}
+    </div>
+</div>

@@ -3,7 +3,6 @@ title: "Experiments"
 weight: 3
 tags: ["typescript"]
 ---
-# Experiments
 
 ## Assigning object as key in object
 

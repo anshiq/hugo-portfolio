@@ -2,7 +2,6 @@
 title: "Function Bing Call Apply"
 tags: ["typescript"]
 ---
-# Functions Bind,Call and Apply
 
 ## Overview
 

@@ -5,4 +5,3 @@ author: "Anshik"
 description: "A practical guide to data structures and algorithms with code examples and real-world applications."
 ---
 
-## Blog Posts

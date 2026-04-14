@@ -3,7 +3,6 @@ title: "Enums"
 tags: ["typescript"]
 ---
 
-# Enums
 
 There are two kinds of enums: enums that map from strings to strings, and enums that map from strings to numbers. They look like this:
 

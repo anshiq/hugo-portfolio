@@ -1,8 +1,7 @@
 ---
-title: "Arrays"
+title: "Arrays in ts"
 tags: ["typescript"]
 ---
-# Arrays in ts
 
 ```
 let a = [1, 2, 3];                // number[]

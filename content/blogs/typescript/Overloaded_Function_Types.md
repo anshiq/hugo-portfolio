@@ -2,7 +2,6 @@
 title: "Overloaded Function Types"
 tags: ["typescript"]
 ---
-# Overloaded Function Types
 
 Signature call is syntax in ts to prodifine prototype/type of function. There are two type to write a signature call.
 
