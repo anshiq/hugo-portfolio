@@ -849,6 +849,438 @@ function FahrenheitDisplay({ value }) {
 }
 ```
 
+---
+
+## Container Components & Presentational Components
+
+The **container/presentational** pattern (also called smart/dumb) separates concerns:
+
+- **Container components** manage state and logic. They fetch data, handle business logic, and pass props down to presentational components.
+- **Presentational components** are pure, stateless components that only render UI based on received props. They have no side effects.
+
+```jsx
+// Container component (smart)
+import { useState, useEffect } from 'react';
+
+function UserListContainer() {
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/api/users')
+      .then(res => res.json())
+      .then(data => { setUsers(data); setLoading(false); });
+  }, []);
+
+  return <UserListPresentation users={users} loading={loading} />;
+}
+
+// Presentational component (dumb)
+function UserListPresentation({ users, loading }) {
+  if (loading) return <p>Loading users...</p>;
+  return (
+    <ul>
+      {users.map(user => <li key={user.id}>{user.name}</li>)}
+    </ul>
+  );
+}
+```
+
+This pattern makes components reusable—you can swap the container logic without changing the presentation layer.
+
+---
+
+## Higher-Order Components (HOC)
+
+A **higher-order component** is a function that takes a component and returns a new component, injecting additional props or behavior. HOCs are useful for cross-cutting concerns like authentication, theming, and logging.
+
+```jsx
+function withTheme(Component) {
+  return function WithTheme(props) {
+    const [theme, setTheme] = useState('light');
+
+    return (
+      <div className={`theme-${theme}`}>
+        <Component {...props} theme={theme} setTheme={setTheme} />
+      </div>
+    );
+  };
+}
+
+function Button({ theme, setTheme, label }) {
+  return (
+    <button onClick={() => setTheme(t => t === 'light' ? 'dark' : 'light')}>
+      {label} (Current: {theme})
+    </button>
+  );
+}
+
+const StyledButton = withTheme(Button);
+// Usage: <StyledButton label="Toggle" />
+```
+
+**Authentication example:**
+
+```jsx
+function withAuth(Component) {
+  return function WithAuth(props) {
+    const [user, setUser] = useState(null);
+
+    useEffect(() => {
+      // Check if user is logged in
+      fetch('/api/me')
+        .then(res => res.json())
+        .then(data => setUser(data))
+        .catch(() => setUser(null));
+    }, []);
+
+    if (!user) return <Redirect to="/login" />;
+    return <Component {...props} user={user} />;
+  };
+}
+
+function Dashboard({ user }) {
+  return <h1>Welcome, {user.name}</h1>;
+}
+
+const ProtectedDashboard = withAuth(Dashboard);
+```
+
+HOCs can become hard to track if nested deeply (the "wrapper hell" problem). Modern React favors **hooks** and **render props** for this.
+
+---
+
+## Render Props
+
+**Render props** is a pattern where a component accepts a function as a prop that returns React elements. This function receives data or state, allowing the child to render arbitrary content based on that state.
+
+```jsx
+function Toggle({ children }) {
+  const [on, setOn] = useState(false);
+
+  return children({ on, setOn });
+}
+
+// Usage
+function App() {
+  return (
+    <Toggle>
+      {({ on, setOn }) => (
+        <div>
+          <p>Status: {on ? 'ON' : 'OFF'}</p>
+          <button onClick={() => setOn(!on)}>Toggle</button>
+        </div>
+      )}
+    </Toggle>
+  );
+}
+```
+
+**Mouse position tracker example:**
+
+```jsx
+function MouseTracker({ children }) {
+  const [mouse, setMouse] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      setMouse({ x: e.clientX, y: e.clientY });
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
+  return children(mouse);
+}
+
+// Usage
+<MouseTracker>
+  {({ x, y }) => (
+    <div style={{ position: 'fixed', left: x, top: y }}>
+      📍 {x}, {y}
+    </div>
+  )}
+</MouseTracker>
+```
+
+Render props are elegant for sharing complex logic but can lead to callback hell. **Hooks** (like `useMousePosition`) are now the preferred approach for this pattern.
+
+---
+
+## Compound Components
+
+**Compound components** are a set of components designed to work together, managing shared state implicitly through React context. Each sub-component has a specific role, and together they form a cohesive UI pattern.
+
+```jsx
+import { createContext, useContext, useState } from 'react';
+
+const TabsContext = createContext(null);
+
+function Tabs({ children, defaultTab = 0 }) {
+  const [activeTab, setActiveTab] = useState(defaultTab);
+
+  return (
+    <TabsContext.Provider value={{ activeTab, setActiveTab }}>
+      {children}
+    </TabsContext.Provider>
+  );
+}
+
+function TabList({ children }) {
+  return <div className="tab-list">{children}</div>;
+}
+
+function Tab({ index, children }) {
+  const { activeTab, setActiveTab } = useContext(TabsContext);
+
+  return (
+    <button
+      className={activeTab === index ? 'active' : ''}
+      onClick={() => setActiveTab(index)}
+    >
+      {children}
+    </button>
+  );
+}
+
+function TabContent({ index, children }) {
+  const { activeTab } = useContext(TabsContext);
+
+  return activeTab === index ? <div className="tab-content">{children}</div> : null;
+}
+
+// Usage
+<Tabs defaultTab={0}>
+  <TabList>
+    <Tab index={0}>Home</Tab>
+    <Tab index={1}>Profile</Tab>
+    <Tab index={2}>Settings</Tab>
+  </TabList>
+  <TabContent index={0}>Home content</TabContent>
+  <TabContent index={1}>Profile content</TabContent>
+  <TabContent index={2}>Settings content</TabContent>
+</Tabs>
+```
+
+Compound components provide an intuitive API and hide implementation details while maintaining flexibility.
+
+---
+
+## React Hook Form
+
+**React Hook Form** is a library for managing form state with minimal re-renders. It uses uncontrolled components and refs by default, making it very performant for large forms.
+
+**Installation:**
+```bash
+npm install react-hook-form
+```
+
+**Basic example:**
+
+```jsx
+import { useForm } from 'react-hook-form';
+
+function SignupForm() {
+  const { register, handleSubmit, watch, formState: { errors } } = useForm({
+    defaultValues: {
+      email: '',
+      password: '',
+      name: '',
+    },
+  });
+
+  const onSubmit = (data) => {
+    console.log('Form data:', data);
+    // Send to server
+  };
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <div>
+        <label>Name</label>
+        <input {...register('name', { required: 'Name is required' })} />
+        {errors.name && <span className="error">{errors.name.message}</span>}
+      </div>
+
+      <div>
+        <label>Email</label>
+        <input
+          type="email"
+          {...register('email', {
+            required: 'Email is required',
+            pattern: { value: /\S+@\S+/, message: 'Invalid email' },
+          })}
+        />
+        {errors.email && <span className="error">{errors.email.message}</span>}
+      </div>
+
+      <div>
+        <label>Password</label>
+        <input
+          type="password"
+          {...register('password', { required: 'Password is required', minLength: 8 })}
+        />
+        {errors.password && <span className="error">{errors.password.message}</span>}
+      </div>
+
+      <button type="submit">Sign Up</button>
+    </form>
+  );
+}
+```
+
+**Key features:**
+
+- **Minimal re-renders** — uncontrolled by default, only re-renders on validation or submission
+- **Easy validation** — built-in rules plus custom validation functions
+- **Field arrays** — handle dynamic fields with `useFieldArray`
+- **Async validation** — validate against server (e.g., email uniqueness)
+
+**Async validation example:**
+
+```jsx
+{register('email', {
+  validate: async (value) => {
+    const res = await fetch(`/api/check-email?email=${value}`);
+    const { available } = await res.json();
+    return available || 'Email already in use';
+  },
+})}
+```
+
+---
+
+## Formik
+
+**Formik** is a form library that simplifies form state management, validation, and error handling. It uses controlled components and is great for complex forms with lots of validation rules.
+
+**Installation:**
+```bash
+npm install formik yup
+```
+
+**Basic example:**
+
+```jsx
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
+
+const validationSchema = Yup.object().shape({
+  email: Yup.string()
+    .email('Invalid email')
+    .required('Email is required'),
+  password: Yup.string()
+    .min(8, 'Password must be at least 8 characters')
+    .required('Password is required'),
+  name: Yup.string()
+    .min(2, 'Name must be at least 2 characters')
+    .required('Name is required'),
+});
+
+function SignupForm() {
+  return (
+    <Formik
+      initialValues={{ email: '', password: '', name: '' }}
+      validationSchema={validationSchema}
+      onSubmit={(values, { setSubmitting }) => {
+        // Send to server
+        console.log('Submitting:', values);
+        setSubmitting(false);
+      }}
+    >
+      {({ isSubmitting }) => (
+        <Form>
+          <div>
+            <label>Name</label>
+            <Field name="name" />
+            <ErrorMessage name="name" component="span" className="error" />
+          </div>
+
+          <div>
+            <label>Email</label>
+            <Field name="email" type="email" />
+            <ErrorMessage name="email" component="span" className="error" />
+          </div>
+
+          <div>
+            <label>Password</label>
+            <Field name="password" type="password" />
+            <ErrorMessage name="password" component="span" className="error" />
+          </div>
+
+          <button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? 'Signing up...' : 'Sign Up'}
+          </button>
+        </Form>
+      )}
+    </Formik>
+  );
+}
+```
+
+**Handling nested fields:**
+
+```jsx
+<Formik
+  initialValues={{
+    user: { firstName: '', lastName: '' },
+    address: { street: '', city: '' },
+  }}
+  onSubmit={(values) => console.log(values)}
+>
+  <Form>
+    <Field name="user.firstName" placeholder="First Name" />
+    <Field name="user.lastName" placeholder="Last Name" />
+    <Field name="address.street" placeholder="Street" />
+    <Field name="address.city" placeholder="City" />
+  </Form>
+</Formik>
+```
+
+**Dynamic field arrays:**
+
+```jsx
+import { FieldArray } from 'formik';
+
+<FieldArray name="emails">
+  {(fieldArrayProps) => {
+    const { push, remove, form } = fieldArrayProps;
+    const { values } = form;
+    const { emails } = values;
+
+    return (
+      <div>
+        {emails.map((email, index) => (
+          <div key={index}>
+            <Field name={`emails.${index}`} placeholder="Email" />
+            <button type="button" onClick={() => remove(index)}>
+              Remove
+            </button>
+          </div>
+        ))}
+        <button type="button" onClick={() => push('')}>
+          Add Email
+        </button>
+      </div>
+    );
+  }}
+</FieldArray>
+```
+
+**Formik vs React Hook Form:**
+
+| Aspect | Formik | React Hook Form |
+|--------|--------|-----------------|
+| Bundle size | Larger (~8.5 KB) | Smaller (~3.5 KB) |
+| Controlled/Uncontrolled | Controlled | Uncontrolled by default |
+| Re-renders | More frequent | Fewer |
+| Validation | Yup, custom | Built-in, custom, async |
+| Learning curve | Moderate | Gentle |
+| Best for | Complex forms | High-performance forms |
+
+Choose **React Hook Form** for better performance and simpler forms. Choose **Formik** for highly complex forms with nested fields and many validation rules.
+
 This keeps a single source of truth and keeps the data flow easy to trace.
 
 ---
